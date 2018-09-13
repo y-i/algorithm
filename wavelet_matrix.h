@@ -119,7 +119,7 @@ class WaveletMatrix {
 public:
     WaveletMatrix(std::vector<T> a): matrix(sizeof(T)*8, SuccinctBitVector<>(a.size())), border(sizeof(T)*8) {
         for (int i = 0; i < sizeof(T) * 8; ++i) {
-            for (int j = 0; j < a.size(); ++j) matrix[i][j] = (a[j]&(1<<(sizeof(T)*8-1-i)));
+            for (int j = 0; j < a.size(); ++j) matrix[i][j] = (a[j] >> ((sizeof(T)*8-1-i))) & 1;
             std::stable_sort(a.begin(),a.end(),[&i](auto &l, auto &r){
                 return (l&(1<<(sizeof(T)*8-1-i))) < (r&(1<<(sizeof(T)*8-1-i)));
             });
@@ -135,7 +135,7 @@ public:
         int index = n;
         T ret = 0;
         for (int i = 0; i < matrix.size(); ++i) {
-            ret += matrix[i][index-1];
+            ret += (matrix[i][index-1]) << (matrix.size() - i - 1);
             index = matrix[i].rank(matrix[i][index-1],index) + border[i] * (matrix[i][index-1] > 0);
         }
         return ret;
@@ -144,8 +144,9 @@ public:
         if (start.count(target) == 0) return 0;
         int index = n;
         for (int i = 0; i < matrix.size(); ++i) {
-            index = matrix[i].rank(target & (1 << (matrix.size() - 1 - i)), index);
-            if (target & (1 << (matrix.size() - 1 - i))) index += border[i];
+            T target_bit = (target >> (matrix.size() - 1 - i)) & 1;
+            index = matrix[i].rank(target_bit, index);
+            if (target_bit) index += border[i];
         }
         return index - start.at(target);
     }
@@ -154,8 +155,8 @@ public:
         int index = start.at(target) + n;
         index = matrix[matrix.size()-1].select(target & 1, index - border[matrix.size()-1] * ((target & 1) > 0));
         for (int i = matrix.size()-2; i >= 0; --i) {
-            T target_bit = target & (1<<(matrix.size()-i-1));
-            index = matrix[i].select(target_bit, index - border[i] * (target_bit > 0));
+            T target_bit = (target >> (matrix.size()-i-1)) & 1;
+            index = matrix[i].select(target_bit, index - border[i] * target_bit);
         }
         return index;
     }
