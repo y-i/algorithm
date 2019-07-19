@@ -5,7 +5,6 @@
 
 // 1-indexed
 template <typename T = int> class SuccinctBitVector {
-  public: // tmp
     // N = 2^32 -> (log N)^2, log(N)/2
     // const int chunk_size = 1024, block_size = 16;
     const int chunk_size = 64, block_size = 16;
@@ -41,12 +40,16 @@ template <typename T = int> class SuccinctBitVector {
         assert((1LL << (sizeof(T) * 8)) >= n);
         assert((1LL << (sizeof(uint16_t) * 8)) >= chunk_size);
     }
-    void init(std::vector<bool> b) {
-        for (int i = 0; i < n; ++i) {
-            if (!b[i])
-                continue;
-            ary[i / 16] += 1 << (i % 16);
-        }
+
+    // 0-indexed
+    // Before init
+    void set(int index, T value) {
+        ary[index / 16] &= (~(1 << (index % 16)));
+        if (value != 0)
+            ary[index / 16] |= 1 << (index % 16);
+    }
+
+    void init() {
         const int block_per_chunk = chunk_size / block_size,
                   byte_per_block = block_size / 16;
         for (int i = 0; i < chunk.size(); ++i) {
@@ -73,6 +76,15 @@ template <typename T = int> class SuccinctBitVector {
         for (int i = 1; i < chunk.size(); ++i) {
             chunk[i] += chunk[i - 1];
         }
+    }
+    void init(std::vector<bool> b) {
+        for (int i = 0; i < n; ++i) {
+            if (!b[i])
+                continue;
+            ary[i / 16] += 1 << (i % 16);
+        }
+
+        init();
     }
 
     bool access(const int n) const { return (*this)[n - 1]; }
