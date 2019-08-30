@@ -87,3 +87,4 @@ template <typename T = int> class WaveletMatrix {
 
     int size() const { return matrix[0].size(); }
 };
+
