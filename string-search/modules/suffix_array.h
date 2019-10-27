@@ -10,14 +10,12 @@ class SuffixArray {
     std::vector<int> suffixArray;
 
     // O(N^2 log N)
-    std::vector<int> createSuffixArrayNaive() {
+    void createSuffixArrayNaive() {
         std::vector<std::pair<std::string, int>> suffixArrayPair;
         for (int i = 0; i <= s.size(); ++i) suffixArrayPair.emplace_back(s.substr(i), i);
         std::sort(suffixArrayPair.begin(), suffixArrayPair.end());
 
         for (auto &p: suffixArrayPair) suffixArray.push_back(p.second);
-
-        return suffixArray;
     }
 public:
     SuffixArray(const std::string &s): s(s), n(s.size()) {
