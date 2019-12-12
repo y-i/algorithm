@@ -55,7 +55,6 @@ class Node:
         self.right.print()
 
     def rotation_l(self):
-        print(f'{self.key}: L')
         if self.parent.left == self:
             self.parent.left = self.right
         else:
@@ -68,7 +67,6 @@ class Node:
         right.left = self
 
     def rotation_r(self):
-        print(f'{self.key}: R')
         if self.parent.left == self:
             self.parent.left = self.left
         else:
@@ -167,12 +165,13 @@ class RedBlackTree:
 
             changeNeeded = type(
                 node.parent) is not RootNode and node.color == node.parent.color
-            self.print()
-            print('---')
 
     def insert(self, key: T, value: U):
         # insert or update
         target_node = self.get_node(key)
+        if type(target_node) is Node:
+            target_node.value = value
+            return
         node = Node(key, value, target_node.parent, Color.RED)
 
         if target_node == target_node.parent.left:
@@ -215,16 +214,11 @@ if __name__ == "__main__":
         else:
             return 0
     tree = RedBlackTree(cmp)
-    for i in [13, 76, 81, 26, 75, 4, 92, 93, 70, 44]:
-        #k, v = randint(0, 100), randint(0, 1000)
-        #print(k, v)
-        #tree.insert(k, v)
-        print(i)
-        tree.insert(i, i)
-        #print(i, tree.isBalanced(), tree.root.left.key)
-        print(tree.print())
+    for i in range(100):
+        k, v = randint(0, 100), randint(0, 1000)
+        print(k, v)
+        tree.insert(k, v)
         print(tree.isBalanced())
-        print('---')
 
     print(tree.print())
     print(tree.isBalanced())
