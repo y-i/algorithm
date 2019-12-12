@@ -135,24 +135,14 @@ class RedBlackTree:
     def print(self):
         self.root.print()
 
-    def insert(self, key: T, value: U):
-        # insert or update
-        target_node = self.get_node(key)
-        node = Node(key, value, target_node.parent, Color.RED)
-
-        if target_node == target_node.parent.left:
-            target_node.parent.left = node
-        else:
-            target_node.parent.right = node
-
-        # balance
+    def balance(self, node: Node):
         changeNeeded = type(node.parent) is not RootNode and (
             node.color == node.parent.color)
         while changeNeeded:
             parent = node.parent
             grand_parent = parent.parent
             if type(grand_parent) is RootNode:
-                break
+                return
 
             isDouble = False
             if parent == grand_parent.left:
@@ -167,7 +157,7 @@ class RedBlackTree:
                 grand_parent.rotation_l()
 
             if type(node) is RootNode:
-                break
+                return
 
             if not isDouble:
                 node = node.parent
@@ -179,6 +169,19 @@ class RedBlackTree:
                 node.parent) is not RootNode and node.color == node.parent.color
             self.print()
             print('---')
+
+    def insert(self, key: T, value: U):
+        # insert or update
+        target_node = self.get_node(key)
+        node = Node(key, value, target_node.parent, Color.RED)
+
+        if target_node == target_node.parent.left:
+            target_node.parent.left = node
+        else:
+            target_node.parent.right = node
+
+        # balance
+        self.balance(node)
 
         self.root.left.color = Color.BLACK
 
